@@ -90,3 +90,66 @@ if (tanggal) {
     });
   });
 };
+
+export const panggilAntrian = (req, res) => {
+  const { no_rawat } = req.query;
+
+  if (!no_rawat) {
+    return res.status(400).json({ message: "no_rawat is required" });
+  }
+
+  const sql = `
+    UPDATE reg_periksa 
+    SET status_panggil = 1
+    WHERE no_rawat = ?
+  `;
+
+  db.query(sql, [no_rawat], (err, result) => {
+    if (err) {
+      console.error("Error updating data:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Data not found" });
+    }
+
+    res.json({
+      message: "Antrian berhasil dipanggil (status_panggil = 1)",
+      no_rawat,
+      status_panggil: 1,
+    });
+  });
+};
+
+// Sudah dipanggil 3x (status_panggil = 2)
+export const sudahDipanggil3x = (req, res) => {
+  const { no_rawat } = req.query;
+
+  if (!no_rawat) {
+    return res.status(400).json({ message: "no_rawat is required" });
+  }
+
+  const sql = `
+    UPDATE reg_periksa 
+    SET status_panggil = 2
+    WHERE no_rawat = ?
+  `;
+
+  db.query(sql, [no_rawat], (err, result) => {
+    if (err) {
+      console.error("Error updating data:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Data not found" });
+    }
+
+    res.json({
+      message: "Pasien sudah dipanggil 3x (status_panggil = 2)",
+      no_rawat,
+      status_panggil: 2,
+    });
+  });
+};

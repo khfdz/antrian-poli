@@ -19,16 +19,21 @@ export default function PoliDetail() {
       .catch((err) => console.error(err));
   }, [poliName]);
 
-  const panggilPasien = (pasien) => {
-    if (!pasien) return;
-    const text = `Nomor antrian ${pasien.no_reg}, atas nama ${pasien.nm_pasien}, silakan menuju ${pasien.nm_poli}`;
-    const utterance = new SpeechSynthesisUtterance(text);
-    speechSynthesis.speak(utterance);
+ const panggilPasien = (pasien) => {
+  if (!pasien) return;
+  const text = `Nomor antrian ${pasien.no_reg}, atas nama ${pasien.nm_pasien}, silakan menuju ${pasien.nm_poli}`;
+  const utterance = new SpeechSynthesisUtterance(text);
 
-    // Pindahkan ke sedang dipanggil
-    setAntrian((prev) => prev.filter((p) => p.no_reg !== pasien.no_reg));
-    setDipanggil((prev) => [...prev, { ...pasien, status: "Sedang Dipanggil" }]);
-  };
+  // Set ke bahasa Indonesia
+  utterance.lang = "id-ID";
+
+  speechSynthesis.speak(utterance);
+
+  // Pindahkan ke sedang dipanggil
+  setAntrian((prev) => prev.filter((p) => p.no_reg !== pasien.no_reg));
+  setDipanggil((prev) => [...prev, { ...pasien, status: "Sedang Dipanggil" }]);
+};
+
 
   const lewatkanAntrian = (pasien) => {
     // Pindahkan ke terlewat
@@ -49,7 +54,7 @@ export default function PoliDetail() {
       <ul>
         {antrian.map((p, idx) => (
           <li key={idx}>
-            {p.no_reg} - {p.nm_pasien || "Pasien Tidak Diketahui"} - {p.nm_poli}
+             {p.no_rawat} - {p.no_reg} - {p.nm_pasien || "Pasien Tidak Diketahui"} - {p.nm_poli}
             <button onClick={() => panggilPasien(p)}>Panggil</button>
             <button onClick={() => lewatkanAntrian(p)}>Lewatkan</button>
           </li>
