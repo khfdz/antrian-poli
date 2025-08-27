@@ -13,6 +13,8 @@
     "express": "^5.1.0",
     "microsoft-cognitiveservices-speech-sdk": "^1.45.0",
     "mysql2": "^3.14.3",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   }
 }
