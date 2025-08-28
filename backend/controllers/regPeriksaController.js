@@ -7,97 +7,112 @@ export const getAllRegPeriksa = (req, res) => {
 
   const { tanggal, poli, no_rawat, status_panggil } = req.query;
 
+  console.log("req.query:", req.query);
+
+  // =====================
+  // Flexible parsing poli
+  // =====================
+  let poliList = [];
+  if (poli) {
+    if (Array.isArray(poli)) {
+      poliList = poli.map(p => p.trim()).filter(Boolean);
+    } else if (typeof poli === "string") {
+      // Bisa menerima format "002,032,049" atau "002"
+      poliList = poli.split(",").map(p => p.trim()).filter(Boolean);
+    }
+  }
+  console.log("Parsed poliList:", poliList);
+
+  // =====================
+  // Build filters
+  // =====================
   let filters = [];
   let params = [];
 
-  // filter by no_rawat
   if (no_rawat) {
     filters.push("r.no_rawat = ?");
     params.push(no_rawat);
   }
 
-  // filter by tanggal (pastikan DATE)
   if (tanggal) {
     filters.push("DATE(r.tgl_registrasi) = ?");
     params.push(tanggal);
   }
 
-  // filter by poli (pakai TRIM biar aman spasi depan/belakang)
-  if (poli) {
-    const poliList = poli.split(",");
-    const placeholders = poliList.map(() => "TRIM(poli.nm_poli) = ?").join(" OR ");
-    filters.push(`(${placeholders})`);
-    params.push(...poliList.map((p) => p.trim())); // trim juga dari sisi JS
+  if (poliList.length > 0) {
+    filters.push(`TRIM(poli.kd_poli) IN (${poliList.map(() => "?").join(",")})`);
+    params.push(...poliList);
   }
 
-  // filter by status_panggil (CAST ke CHAR biar bisa cocok angka/string)
-if (status_panggil !== undefined) {
-  filters.push("r.status_panggil = ?");
-  params.push(Number(status_panggil));
-}
+  if (status_panggil !== undefined) {
+    filters.push("r.status_panggil = ?");
+    params.push(Number(status_panggil));
+  }
 
-  // gabung semua filter
   const whereClause = filters.length > 0 ? "WHERE " + filters.join(" AND ") : "";
+  console.log("WHERE clause:", whereClause);
+  console.log("SQL params before limit/offset:", params);
 
-const sql = `
-  SELECT 
-    r.no_reg,
-    r.no_rawat,
-    r.tgl_registrasi,
-    r.jam_reg,
-    r.kd_dokter,
-    d.nm_dokter,
-    r.no_rkm_medis,
-    p.nm_pasien,
-    p.alamat,
-    poli.nm_poli,           
-    r.status_bayar,
-    r.status_poli,
-    r.status_panggil,
-    r.panggil_timestamp,
-    r.reg_timestamp
-  FROM reg_periksa r
-  LEFT JOIN pasien p ON r.no_rkm_medis = p.no_rkm_medis
-  LEFT JOIN dokter d ON r.kd_dokter = d.kd_dokter
-  LEFT JOIN poliklinik poli ON r.kd_poli = poli.kd_poli
-  ${whereClause}
-  ORDER BY 
-    COALESCE(r.panggil_timestamp, r.reg_timestamp, STR_TO_DATE(CONCAT(r.tgl_registrasi, ' ', r.jam_reg), '%Y-%m-%d %H:%i:%s')) DESC
-  LIMIT ? OFFSET ?
-`;
-
+  // =====================
+  // Main SQL query
+  // =====================
+  const sql = `
+    SELECT r.no_reg, r.no_rawat, r.tgl_registrasi, r.jam_reg,
+           r.kd_dokter, d.nm_dokter, r.no_rkm_medis, p.nm_pasien,
+           p.alamat, poli.kd_poli, poli.nm_poli,
+           r.status_bayar, r.status_poli, r.status_panggil,
+           r.panggil_timestamp, r.reg_timestamp
+    FROM reg_periksa r
+    LEFT JOIN pasien p ON r.no_rkm_medis = p.no_rkm_medis
+    LEFT JOIN dokter d ON r.kd_dokter = d.kd_dokter
+    LEFT JOIN poliklinik poli ON r.kd_poli = poli.kd_poli
+    ${whereClause}
+    ORDER BY COALESCE(
+      r.panggil_timestamp, 
+      r.reg_timestamp,
+      STR_TO_DATE(CONCAT(r.tgl_registrasi, ' ', r.jam_reg), '%Y-%m-%d %H:%i:%s')
+    ) DESC
+    LIMIT ? OFFSET ?
+  `;
+  console.log("Final SQL query:", sql);
+  console.log("Final params:", [...params, limit, offset]);
 
   db.query(sql, [...params, limit, offset], (err, results) => {
     if (err) {
-      console.error("Error fetching data:", err);
-      return res.status(500).json({ message: "Database error" });
+      console.error("Database error:", err);
+      return res.status(500).json({ message: "Database error", error: err.message });
     }
 
-    // count query
+    // =====================
+    // Count total rows
+    // =====================
     const countSql = `
       SELECT COUNT(*) as total
       FROM reg_periksa r
       LEFT JOIN poliklinik poli ON r.kd_poli = poli.kd_poli
       ${whereClause}
     `;
+    console.log("Count SQL query:", countSql);
+    console.log("Count params:", params);
 
     db.query(countSql, params, (err2, countResult) => {
       if (err2) {
-        console.error("Error counting data:", err2);
-        return res.status(500).json({ message: "Database error" });
+        console.error("Count query error:", err2);
+        return res.status(500).json({ message: "Database error", error: err2.message });
       }
 
-      const total = countResult[0].total;
       res.json({
         data: results,
         page,
         limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+        total: countResult[0].total,
+        totalPages: Math.ceil(countResult[0].total / limit),
       });
     });
   });
 };
+
+
 
 
 export const panggilAntrian = (req, res) => {
