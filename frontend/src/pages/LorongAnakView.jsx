@@ -2,8 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { io } from "socket.io-client";
 import TextToSpeech from "../components/TextToSpeech";
+import Navbar from "../components/Navbar";
 
-const socket = io("http://localhost:1414");
+
+
+// Simulasi socket untuk demo
+const socket = {
+  on: (event, callback) => {},
+  off: (event) => {}
+};
 
 export default function LorongAnakView() {
   const [latestQueue, setLatestQueue] = useState(null);
@@ -125,71 +132,103 @@ export default function LorongAnakView() {
     });
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden">
-      {/* Header Section */}
-      <div className="bg-white shadow-xl border-b-4 border-blue-500 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-green-500/5"></div>
-        <div className="relative z-10 px-8 py-6">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-           
-           
-          </div>
-        </div>
-      </div>
+  const getPoliColor = (index) => {
+    const colors = [
+      { primary: '#3B82F6', secondary: '#1D4ED8', light: '#EBF4FF' }, // Blue
+      { primary: '#3B82F6', secondary: '#1D4ED8', light: '#EBF4FF' }, // Blue
+      { primary: '#3B82F6', secondary: '#1D4ED8', light: '#EBF4FF' }, // Blue
+      { primary: '#10B981', secondary: '#059669', light: '#ECFDF5' }, // Green  
+      { primary: '#8B5CF6', secondary: '#7C3AED', light: '#F3E8FF' }, // Purple
+    ];
+    return colors[index % colors.length];
+  };
 
+  return (
+
+    
+    <div className="h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 overflow-hidden flex flex-col">
       {/* TTS Component */}
       {shouldSpeak && latestQueue && (
         <TextToSpeech
-          queue={latestQueue}
-          onEnd={() => setShouldSpeak(false)}
+        queue={latestQueue}
+        onEnd={() => setShouldSpeak(false)}
         />
       )}
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Main Call Section */}
-        <div className="mb-12">
-          <div className="bg-white rounded-3xl shadow-2xl border-t-8 border-gradient-to-r from-blue-500 to-green-500 overflow-hidden transform hover:scale-[1.02] transition-all duration-300">
-            <div className="bg-gradient-to-r from-blue-500 to-green-500 px-8 py-4">
-              <h2 className="text-3xl font-bold text-white flex items-center">
-                <div className="w-3 h-3 bg-white rounded-full mr-4 animate-pulse"></div>
-                SEDANG DIPANGGIL
-              </h2>
-            </div>
+
+
+      <div className="flex-1 ml-2 mr-2 mx-auto px-4 py-6 flex flex-col">
+      <Navbar />
+        
+        {/* Main Call Section - Lebih kompak */}
+      <div className="mb-6">
+  <div
+    className="rounded-2xl shadow-xl overflow-hidden"
+    style={{ borderColor: '#3B82F6', backgroundColor: '#EBF4FF' }} // border pakai primary, bg pakai light
+  >
+    <div
+      className="px-6 py-3 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(to right, #3B82F6, #1D4ED8)', // primary → secondary
+      }}
+    >
+      <div
+        className="absolute inset-0 animate-pulse"
+        style={{
+          background: 'linear-gradient(to right, rgba(59,130,246,0.2), rgba(29,78,216,0.2))', // primary/20 → secondary/20
+        }}
+      ></div>
+      <h2 className="text-2xl font-bold text-white text-center relative z-10 flex items-center justify-center">
+        <div className="w-3 h-3 bg-white rounded-full mr-3 animate-ping"></div>
+        🔊 SEDANG DIPANGGIL
+      </h2>
+    </div>
+
             
             {latestQueue ? (
-              <div className="p-12">
-                <div className="text-center mb-8">
-                  <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-r from-blue-100 to-green-100 rounded-full mb-6 shadow-inner">
-                    <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                      {latestQueue.no_reg}
+              <div className="p-2">
+<div className="flex items-center justify-center space-x-8">
+  {/* Nomor Antrian */}
+  <div className="text-center">
+    <div
+      className="inline-flex items-center justify-center w-40 h-40 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 mt-4"
+      style={{
+        background: 'linear-gradient(to right, #3B82F6, #1D4ED8)', // primary → secondary
+      }}
+    >
+      <div className="text-6xl font-bold text-white">
+        {latestQueue.no_reg}
+      </div>
+    </div>
+    <p className="text-4xl text-gray-700 mt-4 mb-2 font-semibold">NOMOR ANTRIAN</p>
+  </div>
+
+                  
+                  {/* Arrow */}
+                  <div className="text-4xl text-gray-400 animate-bounce">→</div>
+                  
+                  {/* Destinasi */}
+                  <div className="text-center">
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl px-6 py-4 border-2 border-blue-200 shadow-inner">
+                      <p className="text-4xl text-gray-600 font-semibold">Menuju ke:</p>
+                      <div className="text-4xl text-gray-600 mt-4 mb-2 font-semibold">
+                        {latestQueue.nm_poli}
+                      </div>
+                      {latestQueue.nm_dokter && (
+                        <p className="text-3xl text-black mt-2">
+                          <span className="font-semibold">{latestQueue.nm_dokter}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <h3 className="text-2xl font-semibold text-gray-800 mb-2">
-                    NOMOR REGISTRASI
-                  </h3>
-                </div>
-                
-                <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-8 text-center border-2 border-blue-200">
-                  <p className="text-3xl font-bold text-gray-800 mb-4">
-                    Silakan menuju ke
-                  </p>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent animate-pulse">
-                    {latestQueue.nm_poli}
-                  </div>
-                  {latestQueue.nm_dokter && (
-                    <p className="text-xl text-gray-600 mt-4">
-                      Dokter: <span className="font-semibold">{latestQueue.nm_dokter}</span>
-                    </p>
-                  )}
                 </div>
               </div>
             ) : (
-              <div className="p-12 text-center">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
                 </div>
-                <p className="text-2xl text-gray-500 font-medium">
+                <p className="text-xl text-gray-500 font-medium">
                   Menunggu Panggilan Berikutnya...
                 </p>
               </div>
@@ -197,105 +236,98 @@ export default function LorongAnakView() {
           </div>
         </div>
 
-        {/* Standby Queues Section */}
-        <div className="mb-8">
-          <h2 className="text-4xl font-bold text-center text-gray-800 mb-8">
-            ANTRIAN STANDBY
-          </h2>
+        {/* Standby Queues Section - Grid yang lebih kompak */}
+        <div className="flex-1">
+  
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {Object.entries(standbyQueues).map(([poli, queue], index) => (
-              <div
-                key={poli}
-                className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 hover:shadow-2xl transition-all duration-300 border-t-4"
-                style={{ 
-                  borderTopColor: index === 0 ? '#048cd6' : index === 1 ? '#07a75e' : '#048cd6',
-                  animationDelay: `${index * 150}ms`
-                }}
-              >
-                <div 
-                  className="px-6 py-4 text-white font-bold text-xl text-center"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${index === 0 ? '#048cd6' : index === 1 ? '#07a75e' : '#048cd6'}, ${index === 0 ? '#0066cc' : index === 1 ? '#059652' : '#0066cc'})` 
-                  }}
+          <div className="grid grid-cols-3 gap-4 h-[340px]">
+            {Object.entries(standbyQueues).map(([poli, queue], index) => {
+              const color = getPoliColor(index);
+              
+              return (
+                <div
+                  key={poli}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-[1.02] transition-all duration-300 flex flex-col"
+                  
                 >
-                  {poli}
-                </div>
-                
-                <div className="p-8">
-                  {queue ? (
-                    <div className="space-y-6">
-                      <div className="text-center">
-                        <div 
-                          className="inline-flex items-center justify-center w-20 h-20 rounded-full text-white text-2xl font-bold mb-4 shadow-lg"
-                          style={{ 
-                            background: `linear-gradient(135deg, ${index === 0 ? '#048cd6' : index === 1 ? '#07a75e' : '#048cd6'}, ${index === 0 ? '#0066cc' : index === 1 ? '#059652' : '#0066cc'})` 
-                          }}
-                        >
-                          {queue.no_reg}
-                        </div>
-                        <p className="text-sm text-gray-500 uppercase tracking-wide font-semibold">
-                          Nomor Registrasi
+                  {/* Header Poli POLIKLINIK ANAK*/} 
+                  <div 
+                    className="px-2 py-2 text-white font-bold text-center relative "
+                    style={{ background: `linear-gradient(135deg, ${color.primary}, ${color.secondary})` }}
+                  >
+                    <div className="absolute inset-0 bg-white/10 animate-pulse"></div>
+                    <div className="relative z-10 text-3xl leading-tight">
+                      {poli}
+                    </div>
+                  </div>
+
+                  {/* Nama Dokter - Dipindahkan ke sini */}
+                  <div 
+                    className="px-2 py-4 text-center border-b-2"
+                    style={{ 
+                      backgroundColor: color.light,
+                      borderBottomColor: color.primary + '20'
+                    }}
+                  >
+                    {queue?.nm_dokter ? (
+                      <div>
+                        {/* <p className="text-xs text-gray-500 uppercase tracking-wide">Dokter</p> */}
+                        <p className="font-bold text-gray-800 text-xl leading-tight">
+                          {queue.nm_dokter}
                         </p>
                       </div>
-                      
-                      {queue.nm_dokter && (
-                        <div className="bg-gray-50 rounded-xl p-4 text-center">
-                          <p className="text-sm text-gray-500 uppercase tracking-wide mb-1">
-                            Dokter
-                          </p>
-                          <p className="font-semibold text-gray-800">
-                            {queue.nm_dokter}
-                          </p>
-                        </div>
-                      )}
-                      
-                      <div className="flex items-center justify-center">
+                    ) : (
+                      <p className="text-sm text-gray-500 italic">Tidak ada dokter</p>
+                    )}
+                  </div>
+                  
+                  {/* Content Area */}
+                  <div className="py-8 justify-center">
+                    {queue ? (
+                      <div className="text-center">
+                       
+                          <div 
+                            className="inline-flex items-center justify-center w-40 h-40 rounded-full text-white text-7xl font-bold shadow-lg transform hover:scale-110 transition-all duration-300"
+                            style={{ background: `linear-gradient(135deg, ${color.primary}, ${color.secondary})` }}
+                          >
+                            {queue.no_reg}
+                                               </div>
+                        
+                        {/* <div 
+                          className="bg-gradient-to-r rounded-lg px-3 py-2 text-white text-center shadow-md"
+                          style={{ background: `linear-gradient(45deg, ${color.primary}dd, ${color.secondary}dd)` }}
+                        >
+                          <p className="font-bold text-3xl ">Nomor Registrasi</p>
+                        </div> */}
+                      </div>
+                    ) : (
+                      <div className="text-center">
                         <div 
-                          className="w-3 h-3 rounded-full mr-2 animate-pulse"
-                          style={{ backgroundColor: index === 0 ? '#048cd6' : index === 1 ? '#07a75e' : '#048cd6' }}
-                        ></div>
-                        <span className="text-sm text-gray-600 font-medium">
-                          Siap Dipanggil
-                        </span>
+                          className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+                          style={{ backgroundColor: color.light }}
+                        >
+                          <div 
+                            className="w-6 h-6 rounded-full opacity-50"
+                            style={{ backgroundColor: color.primary }}
+                          ></div>
+                        </div>
+                        <p className="text-gray-500 font-medium text-sm">
+                          Tidak ada antrian
+                        </p>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-                      </div>
-                      <p className="text-gray-500 font-medium">
-                        Tidak ada antrian standby
-                      </p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Status Footer */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border-l-8 border-green-500">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-green-500 rounded-full mr-3 animate-pulse"></div>
-              <span className="text-lg font-semibold text-gray-800">
-                Sistem Antrian Aktif
-              </span>
-            </div>
-            <div className="text-sm text-gray-600">
-              Terakhir diperbarui: {formatTime(currentTime)}
-            </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* Floating Animation Elements */}
-      <div className="fixed top-20 right-10 w-6 h-6 bg-blue-200 rounded-full animate-bounce opacity-20"></div>
-      <div className="fixed top-40 right-32 w-4 h-4 bg-green-200 rounded-full animate-pulse opacity-20"></div>
-      <div className="fixed bottom-20 left-10 w-8 h-8 bg-blue-100 rounded-full animate-ping opacity-10"></div>
+      {/* Floating Animation Elements - Reduced */}
+      <div className="fixed top-16 right-8 w-4 h-4 bg-blue-200 rounded-full animate-bounce opacity-20"></div>
+      <div className="fixed top-32 right-24 w-3 h-3 bg-green-200 rounded-full animate-pulse opacity-20"></div>
+      <div className="fixed bottom-16 left-8 w-5 h-5 bg-purple-100 rounded-full animate-ping opacity-10"></div>
     </div>
   );
 }
