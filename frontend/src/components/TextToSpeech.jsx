@@ -1,42 +1,45 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from "react";
 
 const TextToSpeech = ({ queue }) => {
-  useEffect(() => {
-    // Only proceed if queue exists and has required properties
-    if (!queue || !queue.no_reg || !queue.nm_poli) return;
+  const [lastQueueId, setLastQueueId] = useState(null);
 
-    // Create the announcement text
-    const announcement = `Ding dong. Kepada nomor registrasi ${queue.no_reg}, silahkan menuju ke ${queue.nm_poli}`;
-
-    // Use Web Speech API
+  const speakAnnouncement = (announcement) => {
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(announcement);
 
-    // Configure utterance
-    utterance.lang = 'id-ID'; // Set language to Indonesian
-    utterance.volume = 1; // Volume (0 to 1)
-    utterance.rate = 1; // Speed (0.1 to 10)
-    utterance.pitch = 1; // Pitch (0 to 2)
+    utterance.lang = "id-ID";
+    utterance.volume = 1;
+    utterance.rate = 1;
+    utterance.pitch = 1;
 
-    // Optional: Select an Indonesian voice if available
-    const voices = synth.getVoices();
-    const indonesianVoice = voices.find(
-      (voice) => voice.lang === 'id-ID' || voice.lang.startsWith('id')
-    );
-    if (indonesianVoice) {
-      utterance.voice = indonesianVoice;
-    }
+    window.speechSynthesis.cancel(); // clear antrean lama
 
-    // Speak the announcement
-    synth.speak(utterance);
-
-    // Cleanup: Cancel any ongoing speech when component unmounts or queue changes
-    return () => {
-      synth.cancel();
+    let voices = synth.getVoices();
+    const assignAndSpeak = () => {
+      voices = synth.getVoices();
+      const idVoice = voices.find(v => v.lang.startsWith("id"));
+      if (idVoice) utterance.voice = idVoice;
+      synth.speak(utterance);
     };
-  }, [queue]); // Trigger when queue changes
 
-  return null; // This component doesn't render anything
+    if (voices.length === 0) {
+      synth.onvoiceschanged = assignAndSpeak;
+    } else {
+      assignAndSpeak();
+    }
+  };
+
+  useEffect(() => {
+    if (!queue || !queue.no_reg || !queue.nm_poli) return;
+    if (queue.no_rawat === lastQueueId) return; // biar ga dobel
+
+    setLastQueueId(queue.no_rawat);
+
+    const text = `Ding dong. Kepada nomor registrasi ${queue.no_reg}, silahkan menuju ke ${queue.nm_poli}`;
+    speakAnnouncement(text);
+  }, [queue]);
+
+  return null;
 };
 
 export default TextToSpeech;

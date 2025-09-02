@@ -2,7 +2,7 @@ import express from "express";
 import {
   getAllRegPeriksa,
   panggilAntrian,
-  sudahDipanggil3x
+  panggilanTerlewat
 } from "../controllers/regPeriksaController.js";
 
 const router = express.Router();
@@ -14,6 +14,6 @@ router.get("/", getAllRegPeriksa);
 router.put("/panggil", panggilAntrian);
 
 // Tandai sudah dipanggil 3x (pakai query param)
-router.put("/sudah-3x", sudahDipanggil3x);
+router.put("/terlewat", panggilanTerlewat);
 
 export default router;

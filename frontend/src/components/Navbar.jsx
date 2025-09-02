@@ -32,7 +32,11 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 shadow-4xl relative overflow-hidden rounded-xl mb-4">
+<nav className="bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] shadow-4xl relative overflow-hidden  mb-4">
+  {/* isi navbar */}
+
+
+
       {/* Animated background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-32 h-32 bg-white/20 rounded-full blur-xl animate-pulse"></div>
@@ -40,13 +44,18 @@ const Navbar = () => {
         <div className="absolute bottom-0 right-0 w-40 h-40 bg-white/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
       
-      <div className="max-w-7xl mx-auto px-6 py-6 relative z-10">
+      <div className="max-w-8xl mx-auto px-6 py-2 relative z-10">
         <div className="flex justify-between items-center">
           {/* Left Side - Hospital Info */}
           <div className="flex items-center space-x-4">
             {/* Hospital Icon */}
-            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-3 shadow-lg border border-white/30">
-              <div className="text-3xl">🏥</div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/30">
+              <img 
+  src="/logo.png" 
+  alt="Logo" 
+  className="w-16 bg-white p-2 rounded-lg"
+/>
+
             </div>
             
             {/* Hospital Name */}
@@ -80,7 +89,7 @@ const Navbar = () => {
         </div>
 
         {/* Bottom accent line */}
-        <div className="mt-4 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full"></div>
+        {/* <div className="mt-4 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full"></div> */}
       </div>
 
       {/* Floating elements */}
