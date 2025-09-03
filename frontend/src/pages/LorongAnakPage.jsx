@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 export default function LorongAnakPage() {
   const [poliAnakData, setPoliAnakData] = useState({});
 
-  const date = "2025-07-13"; // tanggal yang sama untuk link
+  const date = "2025-03-13"; // tanggal yang sama untuk link
   const poliList = [
     { code: "002", name: "POLIKLINIK ANAK I" },
     { code: "032", name: "POLIKLINIK ANAK II" },

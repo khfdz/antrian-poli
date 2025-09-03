@@ -8,7 +8,7 @@ import { useQueueData } from "../hooks/useQueueData";
 export default function LorongAnakView() {
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  const date = "2025-07-13";
+  const date = "2025-03-13";
 
   const poliList = [
     { kode: "002", nama: "POLIKLINIK ANAK I" },
@@ -31,7 +31,6 @@ export default function LorongAnakView() {
     const colors = [
       { primary: "#3B82F6", secondary: "#1D4ED8", light: "#EBF4FF" }, // Blue
       { primary: "#3B82F6", secondary: "#1D4ED8", light: "#EBF4FF" },
-      // { primary: "#10B981", secondary: "#059669", light: "#ECFDF5" }, // Green
       { primary: "#3B82F6", secondary: "#1D4ED8", light: "#EBF4FF" }, // Purple
     ];
     return colors[index % colors.length];
@@ -50,7 +49,7 @@ export default function LorongAnakView() {
       )}
       <div className="flex-1 flex flex-col">
         <Navbar />
-        <QueueDisplay latestQueue={latestQueue} missedQueues={missedQueues}/>
+        <QueueDisplay latestQueue={latestQueue} missedQueues={missedQueues} />
         <div className="flex-1">
           <div className="grid grid-cols-3 gap-3 h-[340px] ml-6 mr-6 ">
             {Object.entries(standbyQueues).map(([poli, queue], index) => (

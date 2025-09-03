@@ -1,10 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 export default function QueueDisplay({ latestQueue, missedQueues }) {
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 8;
+
+  // Flatten missedQueues into a single array
+  const flattenedMissedQueues = missedQueues
+    ? Object.entries(missedQueues)
+        .flatMap(([poli, queues]) =>
+          Array.isArray(queues) ? queues.map((queue) => ({ ...queue, poli })) : []
+        )
+        .sort((a, b) => a.no_reg.localeCompare(b.no_reg)) // Optional: sort by no_reg
+    : [];
+
+  const totalPages = Math.ceil(flattenedMissedQueues.length / itemsPerPage);
+  const displayedQueues = flattenedMissedQueues.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage
+  );
+
+  // Auto-advance every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPage((prev) => (prev + 1) % totalPages || 0);
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [totalPages]);
+
+  const handleDotClick = (pageIndex) => {
+    setCurrentPage(pageIndex);
+  };
+
   return (
-    <div className="mb-10 mt-6  ml-6 mr-6 flex space-x-6">
+    <div className="mb-10 mt-6 ml-6 mr-6 flex space-x-6">
       {/* Sedang Dipanggil Section */}
-      <div className="flex-2 rounded-2xl shadow-xl overflow-hidden" style={{ borderColor: "#3B82F6", backgroundColor: "#EBF4FF" }}>
+      <div
+        className="flex-2 rounded-2xl shadow-xl overflow-hidden"
+        style={{ borderColor: "#3B82F6", backgroundColor: "#EBF4FF" }}
+      >
         <div
           className="px-6 py-3 relative overflow-hidden"
           style={{
@@ -25,7 +59,7 @@ export default function QueueDisplay({ latestQueue, missedQueues }) {
 
         {latestQueue ? (
           <div className="p-2">
-            <div className="flex items-center justify-center space-x-8">
+            <div className="flex items-center justify-center space-x-2">
               <div className="text-center">
                 <div
                   className="inline-flex items-center justify-center w-35 h-35 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 mt-4"
@@ -71,9 +105,12 @@ export default function QueueDisplay({ latestQueue, missedQueues }) {
       </div>
 
       {/* Antrian Terlewat Section */}
-      <div className="flex-1 rounded-2xl shadow-xl overflow-hidden" style={{ borderColor: "#EF4444", backgroundColor: "#FEF2F2" }}>
+      <div
+        className="flex-1 rounded-2xl shadow-xl overflow-hidden relative"
+        style={{ borderColor: "#EF4444", backgroundColor: "#FEF2F2" }}
+      >
         <div
-          className="px-6 py-3 relative overflow-hidden"
+          className="px-8 py-3 relative overflow-hidden"
           style={{
             background: "linear-gradient(to right, #EF4444, #B91C1C)",
           }}
@@ -90,29 +127,22 @@ export default function QueueDisplay({ latestQueue, missedQueues }) {
           </h2>
         </div>
 
-        <div className="p-4">
-          {missedQueues && typeof missedQueues === 'object' && Object.keys(missedQueues).length > 0 && Object.values(missedQueues).some(queue => Array.isArray(queue) && queue.length > 0) ? (
+        <div className="p-4 min-h-[250px] flex flex-col justify-between">
+          {flattenedMissedQueues.length > 0 ? (
             <div className="space-y-4">
-              {Object.entries(missedQueues).map(([poli, queues]) =>
-                Array.isArray(queues) && queues.length > 0 ? (
-                  <div key={poli} className="">
-                  
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {queues.map((queue, index) => (
-                        <div
-                          key={index}
-                          className="inline-flex items-center justify-center w-23 h-23 rounded-full shadow-md text-white text-4xl font-bold"
-                          style={{
-              background: "linear-gradient(to right, #EF4444, #B91C1C)",
-            }}
-                        >
-                          {queue.no_reg}
-                        </div>
-                      ))}
-                    </div>
+              <div className="flex flex-wrap gap-2 mt-2 justify-center">
+                {displayedQueues.map((queue, index) => (
+                  <div
+                    key={`${queue.poli}-${queue.no_reg}-${index}`}
+                    className="inline-flex items-center justify-center w-23 h-23 rounded-full shadow-md text-white text-4xl font-bold"
+                    style={{
+                      background: "linear-gradient(to right, #EF4444, #B91C1C)",
+                    }}
+                  >
+                    {queue.no_reg}
                   </div>
-                ) : null
-              )}
+                ))}
+              </div>
             </div>
           ) : (
             <div className="p-8 text-center">
@@ -122,6 +152,20 @@ export default function QueueDisplay({ latestQueue, missedQueues }) {
               <p className="text-xl text-gray-500 font-medium">
                 Tidak Ada Antrian Terlewat
               </p>
+            </div>
+          )}
+          {/* Pagination Dots */}
+          {totalPages > 1 && (
+            <div className="absolute bottom-2 left-0 right-0 flex justify-center space-x-2">
+              {Array.from({ length: totalPages }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleDotClick(index)}
+                  className={`w-3 h-3 rounded-full transition-colors ${
+                    index === currentPage ? "bg-red-600" : "bg-red-300 hover:bg-red-400"
+                  }`}
+                ></button>
+              ))}
             </div>
           )}
         </div>

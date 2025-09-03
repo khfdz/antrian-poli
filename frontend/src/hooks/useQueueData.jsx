@@ -5,13 +5,13 @@ export const useQueueData = (poliList, date) => {
   const [latestQueue, setLatestQueue] = useState(null);
   const [standbyQueues, setStandbyQueues] = useState(
     poliList.reduce((acc, poli) => {
-      acc[poli.nama] = null;
+      acc[poli.kode] = null; // Use kode instead of nama
       return acc;
     }, {})
   );
   const [missedQueues, setMissedQueues] = useState(
     poliList.reduce((acc, poli) => {
-      acc[poli.nama] = [];
+      acc[poli.kode] = []; // Use kode instead of nama
       return acc;
     }, {})
   );
@@ -34,16 +34,17 @@ export const useQueueData = (poliList, date) => {
 
       console.log("📥 Data dari API:", records);
 
+      // Group data by kode instead of nm_poli
       const groupedData = poliList.reduce((acc, poli) => {
-        acc[poli.nama] = records.filter((r) => r.nm_poli === poli.nama);
+        acc[poli.kode] = records.filter((r) => r.kd_poli === poli.kode); // Filter by kd_poli
         return acc;
       }, {});
       console.log("🔀 Grouped data:", groupedData);
 
-      // Cari latest yang status_panggil = 1
+      // Find latest with status_panggil = 1
       let latest = null;
-      Object.keys(groupedData).forEach((poli) => {
-        groupedData[poli]
+      Object.keys(groupedData).forEach((kode) => {
+        groupedData[kode]
           .filter((r) => r.status_panggil === 1)
           .forEach((r) => {
             const ts = new Date(r.panggil_timestamp);
@@ -53,30 +54,30 @@ export const useQueueData = (poliList, date) => {
               ? new Date(latest.panggil_timestamp)
               : new Date(0);
             if (!latest || ts > latestTS) {
-              latest = { ...r, nm_poli: poli };
+              latest = { ...r, kd_poli: kode }; // Use kd_poli instead of nm_poli
             }
           });
       });
       console.log("📢 Sedang dipanggil (latest):", latest);
 
-      // Standby: ambil antrian aktif status_panggil = 1
+      // Standby: get active queue with status_panggil = 1
       const standbyData = {};
       poliList.forEach((poli) => {
-        const standby = groupedData[poli.nama]
+        const standby = groupedData[poli.kode]
           .filter((r) => r.status_panggil === 1)
           .sort(
             (a, b) => new Date(b.panggil_timestamp) - new Date(a.panggil_timestamp)
           )[0];
-        standbyData[poli.nama] = standby ? { ...standby } : null;
+        standbyData[poli.kode] = standby ? { ...standby } : null; // Use kode
       });
       console.log("⏳ Standby queues:", standbyData);
 
       // Missed: status_panggil = 3
       const missedData = {};
       poliList.forEach((poli) => {
-        missedData[poli.nama] = groupedData[poli.nama].filter(
+        missedData[poli.kode] = groupedData[poli.kode].filter(
           (r) => r.status_panggil === 3
-        );
+        ); // Use kode
       });
       console.log("❌ Panggilan terlewat:", missedData);
 

@@ -1,83 +1,12 @@
-import React, { useEffect, useState } from "react";
+// src/components/PoliDetail.jsx
+import React from "react";
 import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
-
-// Koneksi socket global
-const socket = io("http://localhost:1414"); // ganti sesuai backend
+import { usePoli } from "../hooks/usePoli";
 
 export default function PoliDetail() {
-  const { poliCode, date } = useParams(); // URL: /poli/002/2025-08-13
-  const [antrian, setAntrian] = useState([]);
-  const [dipanggil, setDipanggil] = useState([]);
-  const [terlewat, setTerlewat] = useState([]);
-
-  const fetchData = async () => {
-    if (!poliCode || !date) return;
-
-    try {
-      const queryParams = new URLSearchParams();
-      queryParams.append("tanggal", date);
-      queryParams.append("poli", poliCode);
-      queryParams.append("status_panggil", 0);
-
-      const response = await fetch(
-        `http://localhost:1414/api/reg-periksa?${queryParams.toString()}`
-      );
-
-      if (!response.ok) {
-        console.error("❌ Fetch gagal:", response.status, response.statusText);
-        return;
-      }
-
-      const result = await response.json();
-      setAntrian(result.data || []);
-    } catch (err) {
-      console.error("❌ Fetch error:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-
-    socket.on("updateAntrian", (data) => {
-      console.log("📢 updateAntrian:", data);
-      fetchData();
-    });
-
-    return () => socket.off("updateAntrian");
-  }, [poliCode, date]);
-
-const panggilPasien = async (pasien) => {
-  try {
-    const response = await fetch(
-      `http://localhost:1414/api/reg-periksa/panggil?no_rawat=${encodeURIComponent(pasien.no_rawat)}`,
-      {
-        method: "PUT", // ✅ wajib PUT
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Gagal panggil pasien: ${response.status} ${response.statusText}`);
-    }
-
-    console.log(`✅ Berhasil panggil pasien ${pasien.no_rkm_medis}`);
-  } catch (err) {
-    console.error("❌ Error panggil pasien:", err);
-  }
-};
-
-
-  const lewatkanAntrian = (pasien) => {
-    setAntrian((prev) => prev.filter((p) => p.no_rawat !== pasien.no_rawat));
-    setTerlewat((prev) => [...prev, { ...pasien, status: "Terlewat" }]);
-  };
-
-  const selesaiPanggil = (pasien) => {
-    setDipanggil((prev) => prev.filter((p) => p.no_rawat !== pasien.no_rawat));
-  };
+  const { poliCode, date } = useParams();
+  const { antrian, dipanggil, terlewat, panggilPasien, lewatkanAntrian, selesaiPanggil } =
+    usePoli(poliCode, date);
 
   return (
     <div className="p-4">
