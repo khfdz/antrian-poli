@@ -4,7 +4,8 @@ import { io } from "socket.io-client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LorongAnakPage from "./pages/LorongAnakPage";
 import LorongAnakView from "./pages/LorongAnakView";
-import LorongUmumView from "./pages/LorongUmumView"
+import LorongUmumView from "./pages/LorongUmumView";
+import Lorong3View from "./pages/Lorong3View";
 import PoliDetail from "./pages/PoliDetail";
 import HomePage from "./pages/HomePage";
 import "./index.css";
@@ -38,6 +39,8 @@ function App() {
         <Route path="/loronganak" element={<LorongAnakPage />} />
         <Route path="/loronganak/view" element={<LorongAnakView socket={socket} />} />
         <Route path="/lorongumum/view" element={<LorongUmumView socket={socket} />} />
+        <Route path="/lorong3/view" element={<Lorong3View socket={socket} />} />
+
         <Route path="/poli/:poliCode/:date" element={<PoliDetail socket={socket} />} />
       </Routes>
     </Router>

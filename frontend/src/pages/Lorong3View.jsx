@@ -5,18 +5,15 @@ import QueueDisplay from '../components/QueueDisplay';
 import StandbyQueueCard from '../components/StandbyQueueCard';
 import { useQueueData } from '../hooks/useQueueData';
 
-export default function LorongUmumView() {
+export default function Lorong3View() {
     const [currentTime, setCurrentTime] = useState(new Date());
 
-    const date = "2025-08-13";
+    const date = "2025-01-02";
 
     const poliList = [
-        { kode: "001", nama: "POLIKLINIK OBSGYN/KANDUNGAN I" },
-        { kode: "044", nama: "POLIKLINIK OBSGYN/KANDUNGAN II" },
-        { kode: "004", nama: "POLIKLINIK UMUM" },
-        { kode: "009", nama: "POLIKLINIK THT" },
-        { kode: "012", nama: "POLIKLINIK GIGI I" },
-        { kode: "041", nama: "POLIKLINIK GIGI II" },
+        { kode: "008", nama: "POLIKLINIK MATA" },
+        { kode: "069", nama: "POLIKLINIK TEST" },
+        { kode: "010", nama: "POLIKLINIK KULIT & KELAMIN" },
     ];
 
     const { latestQueue, missedQueues, standbyQueues, shouldSpeak, setShouldSpeak } =
@@ -34,14 +31,11 @@ export default function LorongUmumView() {
             { primary: "#3B82F6", secondary: "#1D4ED8", light: "#EBF4FF" },
             { primary: "#3B82F6", secondary: "#1D4ED8", light: "#EBF4FF" },
             { primary: "#3B82F6", secondary: "#1D4ED8", light: "#EBF4FF" },
-            { primary: "#3B82F6", secondary: "#1D4ED8", light: "#EBF4FF" },
-            { primary: "#3B82F6", secondary: "#1D4ED8", light: "#EBF4FF" },
-            { primary: "#3B82F6", secondary: "#1D4ED8", light: "#EBF4FF" },
         ];
         return colors[index % colors.length];
     };
 
-    // Determine style type based on poliList length
+    // Karena cuma 3 poli, otomatis styleType = "A"
     const styleType = poliList.length > 3 ? "B" : "A";
 
     return (
@@ -68,7 +62,7 @@ export default function LorongUmumView() {
                                     poliName={poliData ? poliData.nama : poli}
                                     queue={queue}
                                     color={getPoliColor(index)}
-                                    styleType={styleType} // Pass styleType prop
+                                    styleType={styleType}
                                 />
                             );
                         })}

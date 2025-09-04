@@ -33,14 +33,14 @@ export default function QueueDisplay({ latestQueue, missedQueues }) {
   };
 
   return (
-    <div className="mb-10 mt-6 ml-6 mr-6 flex space-x-6">
+    <div className="h-[270px] mb-6 mt-2 ml-12 mr-12 flex space-x-8">
       {/* Sedang Dipanggil Section */}
       <div
         className="flex-2 rounded-2xl shadow-xl overflow-hidden"
         style={{ borderColor: "#3B82F6", backgroundColor: "#EBF4FF" }}
       >
         <div
-          className="px-6 py-3 relative overflow-hidden"
+          className="px-6 py-2 relative overflow-hidden"
           style={{
             background: "linear-gradient(to right, #3B82F6, #1D4ED8)",
           }}
@@ -51,7 +51,7 @@ export default function QueueDisplay({ latestQueue, missedQueues }) {
               background: "linear-gradient(to right, rgba(59,130,246,0.2), rgba(29,78,216,0.2))",
             }}
           ></div>
-          <h2 className="text-2xl font-bold text-white text-center relative z-10 flex items-center justify-center">
+          <h2 className="text-xl font-bold text-white text-center relative z-10 flex items-center justify-center">
             <div className="w-3 h-3 bg-white rounded-full mr-3 animate-ping"></div>
             🔊 SEDANG DIPANGGIL
           </h2>
@@ -62,12 +62,12 @@ export default function QueueDisplay({ latestQueue, missedQueues }) {
             <div className="flex items-center justify-center space-x-2">
               <div className="text-center">
                 <div
-                  className="inline-flex items-center justify-center w-35 h-35 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 mt-4"
+                  className="inline-flex items-center justify-center w-34 h-34 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 mt-4"
                   style={{
                     background: "linear-gradient(to right, #3B82F6, #1D4ED8)",
                   }}
                 >
-                  <div className="text-5xl font-bold text-white">
+                  <div className="text-6xl font-bold text-white">
                     {latestQueue.no_reg}
                   </div>
                 </div>
@@ -78,11 +78,11 @@ export default function QueueDisplay({ latestQueue, missedQueues }) {
               <div className="text-5xl text-gray-700 animate-bounce">→</div>
               <div className="text-center">
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl px-6 py-4 border-2 border-blue-200 shadow-inner">
-                  <div className="text-3xl text-gray-600 mb-2 font-semibold">
+                  <div className="text-2xl text-gray-600 mb-2 font-semibold">
                     {latestQueue.nm_poli}
                   </div>
                   {latestQueue.nm_dokter && (
-                    <p className="text-3xl text-gray-700 mt-2">
+                    <p className="text-2xl text-gray-700 mt-2">
                       <span className="font-semibold">
                         {latestQueue.nm_dokter}
                       </span>
